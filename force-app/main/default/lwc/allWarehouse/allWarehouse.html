@@ -1,16 +1,20 @@
 <template>
     <lightning-card title="Warehouse List">
         <div class="slds-p-around_medium">
+            <!-- Search input field -->
             <lightning-input type="search" style="width:25%" label="Search" value={searchTerm} onchange={handleSearchTermChange}></lightning-input>
         </div>
         <template if:true={data}>
+            <!-- Datatable -->
             <lightning-datatable
                 key-field="Id"
-                data={data}
+                data={filteredData}
                 columns={columnsList}
+                class="slds-table slds-table_cell-buffer slds-table_bordered"
             ></lightning-datatable>
         </template>
         <template if:true={error}>
+            <!-- Error message -->
             <div class="slds-text-color_error">
                 <p>An error occurred while fetching the data:</p>
                 <p>{error}</p>

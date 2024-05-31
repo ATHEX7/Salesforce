@@ -1,45 +1,57 @@
 import { LightningElement, wire } from 'lwc';
-import { getRecords } from 'lightning/uiRecordApi';
+import { getListUi } from 'lightning/uiListApi';
 import WAREHOUSE_OBJECT from '@salesforce/schema/Warehouse__c';
-import NAME_FIELD from '@salesforce/schema/Warehouse__c.Name';
 import ADDRESS_FIELD from '@salesforce/schema/Warehouse__c.Address__c';
-import OWNER_FIELD from '@salesforce/schema/Warehouse__c.OwnerId';
+import NAME_FIELD from '@salesforce/schema/Warehouse__c.Name';
 import STATUS_FIELD from '@salesforce/schema/Warehouse__c.Status__c';
+import { NavigationMixin } from 'lightning/navigation';
 
 // Define the columns for the datatable
 const columns = [
-    { label: 'Warehouse Name', fieldName: 'Name', type: 'text' },
-    { label: 'Address', fieldName: 'Address__c', type: 'text' },
-    { label: 'Owner', fieldName: 'OwnerId', type: 'text' },
-    { label: 'Status', fieldName: 'Status__c', type: 'text' }
+    { label: 'Warehouse Name', fieldName: NAME_FIELD.fieldApiName, type: 'text' },
+    { label: 'Address', fieldName: ADDRESS_FIELD.fieldApiName, type: 'text' },
+    { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' }
 ];
 
-export default class AllWarehouse extends LightningElement {
-    // Property to hold the data for the datatable
+export default class AllWarehouse extends NavigationMixin(LightningElement) {
+    searchTerm = '';
     data = [];
-    // Columns configuration for the datatable
     columnsList = columns;
-    // Error property to hold any errors
     error;
 
-    // Wire adapter to fetch all warehouse records
-    @wire(getRecords, {
-        fields: [NAME_FIELD, ADDRESS_FIELD, OWNER_FIELD, STATUS_FIELD],
-        objectApiName: WAREHOUSE_OBJECT
+    @wire(getListUi, {
+        objectApiName: WAREHOUSE_OBJECT.objectApiName,
+        listViewApiName: 'All'
     })
     wiredRecords({ error, data }) {
         if (data) {
-            this.data = data.records.map(record => ({
-                Id: record.id,
-                Name: record.fields.Name.value,
-                Address__c: record.fields.Address__c.value,
-                OwnerId: record.fields.OwnerId.value,
-                Status__c: record.fields.Status__c.value
-            }));
+            this.data = data.records.records.map(record => {
+                const fields = record.fields;
+                return {
+                    Id: record.id,
+                    Name: fields[NAME_FIELD.fieldApiName].value || '',
+                    Address__c: fields[ADDRESS_FIELD.fieldApiName].value || '',
+                    Status__c: fields[STATUS_FIELD.fieldApiName].value || ''
+                };
+            });
             this.error = undefined;
         } else if (error) {
             this.error = error;
             this.data = undefined;
         }
+    }
+
+    handleSearchTermChange(event) {
+        this.searchTerm = event.target.value.toLowerCase();
+    }
+
+    get filteredData() {
+        if (!this.searchTerm) {
+            return this.data;
+        }
+        return this.data.filter(record =>
+            record.Name.toLowerCase().includes(this.searchTerm) ||
+            record.Address__c.toLowerCase().includes(this.searchTerm)
+        );
     }
 }
