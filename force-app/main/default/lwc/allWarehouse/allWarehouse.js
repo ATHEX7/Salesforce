@@ -8,7 +8,16 @@ import { NavigationMixin } from 'lightning/navigation';
 
 // Define the columns for the datatable
 const columns = [
-    { label: 'Warehouse Name', fieldName: NAME_FIELD.fieldApiName, type: 'text' },
+    {
+        label: 'Warehouse Name',
+        fieldName: 'recordLink',
+        type: 'url',
+        typeAttributes: {  
+            label: {
+                fieldName: NAME_FIELD.fieldApiName
+            },
+            target: '_self'
+        }},
     { label: 'Address', fieldName: ADDRESS_FIELD.fieldApiName, type: 'text' },
     { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' }
 ];
@@ -31,7 +40,8 @@ export default class AllWarehouse extends NavigationMixin(LightningElement) {
                     Id: record.id,
                     Name: fields[NAME_FIELD.fieldApiName].value || '',
                     Address__c: fields[ADDRESS_FIELD.fieldApiName].value || '',
-                    Status__c: fields[STATUS_FIELD.fieldApiName].value || ''
+                    Status__c: fields[STATUS_FIELD.fieldApiName].value || '',
+                    recordLink: '/' + record.id // Construct the URL to the record page
                 };
             });
             this.error = undefined;
