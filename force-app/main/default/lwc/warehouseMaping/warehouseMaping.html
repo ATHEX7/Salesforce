@@ -1,0 +1,17 @@
+
+<template>
+  <lightning-card title="Warehouse Details">
+  <template if:true={mapMarkers.length}>
+  <lightning-map 
+  map-markers={mapMarkers}
+   zoom-level="15"
+    center={mapCenter}>
+  </lightning-map>
+  </template>
+  <template if:true={error}>
+  <p class="slds-p-horizontal_small">
+                  {error}
+  </p>
+  </template>
+  </lightning-card>
+  </template>
