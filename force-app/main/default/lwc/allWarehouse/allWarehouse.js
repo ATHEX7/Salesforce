@@ -18,8 +18,24 @@ const columns = [
             },
             target: '_self'
         }},
-    { label: 'Address', fieldName: ADDRESS_FIELD.fieldApiName, type: 'text' },
-    { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' }
+    { 
+        label: 'Address', 
+        fieldName: ADDRESS_FIELD.fieldApiName, 
+        type: 'text' 
+    },
+    { 
+        label: 'Status', 
+        fieldName: STATUS_FIELD.fieldApiName, 
+        type: 'text',
+        cellAttributes: { 
+            class: { 
+                fieldName: 'statusClass' 
+            },
+            style: { 
+                fieldName: 'statusStyle' 
+            }
+        } 
+    }
 ];
 
 export default class AllWarehouse extends NavigationMixin(LightningElement) {
@@ -41,7 +57,8 @@ export default class AllWarehouse extends NavigationMixin(LightningElement) {
                     Name: fields[NAME_FIELD.fieldApiName].value || '',
                     Address__c: fields[ADDRESS_FIELD.fieldApiName].value || '',
                     Status__c: fields[STATUS_FIELD.fieldApiName].value || '',
-                    recordLink: '/' + record.id // Construct the URL to the record page
+                    recordLink: '/' + record.id, // Construct the URL to the record page
+                    statusClass: this.getStatusClass(fields[STATUS_FIELD.fieldApiName].value) // Get status class
                 };
             });
             this.error = undefined;
@@ -63,5 +80,18 @@ export default class AllWarehouse extends NavigationMixin(LightningElement) {
             record.Name.toLowerCase().includes(this.searchTerm) ||
             record.Address__c.toLowerCase().includes(this.searchTerm)
         );
+    }
+
+    // Method to determine CSS class based on status value
+    getStatusClass(statusValue) {
+        if (statusValue === 'Available') {
+            return 'slds-text-color_success';
+        } else if (statusValue === 'Rented') {
+            return 'slds-text-color_error';
+        } else if (statusValue === 'Under Maintenance') {
+            return 'slds-text-color_warning';
+        } else {
+            return 'slds-text-color_weak';
+        }
     }
 }
